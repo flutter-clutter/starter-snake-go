@@ -1,4 +1,4 @@
-package main
+package game
 
 type Coord struct {
 	X int `json:"x"`
@@ -30,7 +30,7 @@ func (currentCoord Coord) newCoordFromMove(move SnakeDirectionType) Coord {
 }
 
 func (coord Coord) distanceToOther(other Coord) int {
-	return Abs(coord.X-other.X) + Abs(coord.Y-other.Y)
+	return abs(coord.X-other.X) + abs(coord.Y-other.Y)
 }
 
 func (currentCoord Coord) isInSnakes(board Board) bool {
@@ -45,12 +45,10 @@ func (currentCoord Coord) isInSnakes(board Board) bool {
 
 func (currentCoord Coord) isInSnake(battlesnake Battlesnake) bool {
 	if currentCoord.equals(battlesnake.Head) {
-		println("Coord is in snake")
 		return true
 	}
 	for _, bodyCoord := range battlesnake.Body /*[:len(battlesnake.Body)-1]*/ {
 		if currentCoord.equals(bodyCoord) {
-			println("Coord is in snake")
 			return true
 		}
 	}
@@ -60,4 +58,11 @@ func (currentCoord Coord) isInSnake(battlesnake Battlesnake) bool {
 
 func (currentCoord Coord) isSafe(battlesnake Battlesnake, board Board) bool {
 	return !currentCoord.isOutsideOfArea(board) && !currentCoord.isInSnakes(board)
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
 }

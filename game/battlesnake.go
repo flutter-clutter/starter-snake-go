@@ -1,4 +1,4 @@
-package main
+package game
 
 type Battlesnake struct {
 	ID     string  `json:"id"`
@@ -8,4 +8,10 @@ type Battlesnake struct {
 	Head   Coord   `json:"head"`
 	Length int32   `json:"length"`
 	Shout  string  `json:"shout"`
+}
+
+type StrategicBattlesnake struct {
+	Snake    Battlesnake
+	Strategy Strategy
+	Action   Action
 }

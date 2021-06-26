@@ -1,3 +1,3 @@
-module github.com/BattlesnakeOfficial/starter-snake-go
+module github.com/flutter-clutter/starter-snake-go
 
 go 1.13
