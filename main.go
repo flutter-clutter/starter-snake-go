@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 )
@@ -12,21 +11,6 @@ import (
 type Game struct {
 	ID      string `json:"id"`
 	Timeout int32  `json:"timeout"`
-}
-
-type Coord struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-}
-
-type Battlesnake struct {
-	ID     string  `json:"id"`
-	Name   string  `json:"name"`
-	Health int32   `json:"health"`
-	Body   []Coord `json:"body"`
-	Head   Coord   `json:"head"`
-	Length int32   `json:"length"`
-	Shout  string  `json:"shout"`
 }
 
 type Board struct {
@@ -52,9 +36,11 @@ type GameRequest struct {
 }
 
 type MoveResponse struct {
-	Move  string `json:"move"`
-	Shout string `json:"shout,omitempty"`
+	Move  SnakeDirectionType `json:"move"`
+	Shout string             `json:"shout,omitempty"`
 }
+
+var possibleMoves []SnakeDirectionType = []SnakeDirectionType{SnakeDirection.UP, SnakeDirection.DOWN, SnakeDirection.LEFT, SnakeDirection.RIGHT}
 
 // HandleIndex is called when your Battlesnake is created and refreshed
 // by play.battlesnake.com. BattlesnakeInfoResponse contains information about
@@ -62,10 +48,10 @@ type MoveResponse struct {
 func HandleIndex(w http.ResponseWriter, r *http.Request) {
 	response := BattlesnakeInfoResponse{
 		APIVersion: "1",
-		Author:     "",        // TODO: Your Battlesnake username
-		Color:      "#888888", // TODO: Personalize
-		Head:       "default", // TODO: Personalize
-		Tail:       "default", // TODO: Personalize
+		Author:     "schnodderfahne",
+		Color:      "#ff5978",
+		Head:       "gamer",
+		Tail:       "mouse",
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -85,6 +71,12 @@ func HandleStart(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	if len(request.Board.Snakes) == 1 {
+		println("I am the only snake here")
+	} else {
+		println("Oh, other snakes here, too.")
+	}
+
 	// Nothing to respond with here
 	fmt.Print("START\n")
 }
@@ -99,20 +91,86 @@ func HandleMove(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	// Choose a random direction to move in
-	possibleMoves := []string{"up", "down", "left", "right"}
-	move := possibleMoves[rand.Intn(len(possibleMoves))]
+	var move SnakeDirectionType
+
+	move = approachNearestFood(request.Board, request.You)
+
+	var newCoord Coord = request.You.Head.newCoordFromMove(move)
+
+	fmt.Printf("Is %s safe?\n", move)
+	if !newCoord.isSafe(request.You, request.Board) {
+		move = getSafeMove(request.You, request.Board)
+	}
 
 	response := MoveResponse{
 		Move: move,
 	}
 
 	fmt.Printf("MOVE: %s\n", response.Move)
+
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getSafeMove(battlesnake Battlesnake, board Board) SnakeDirectionType {
+	for _, v := range possibleMoves {
+		if battlesnake.Head.newCoordFromMove(v).isSafe(battlesnake, board) {
+			fmt.Printf("Safe move: %s\n", v)
+			return v
+		}
+	}
+
+	println("No safe move found")
+	return SnakeDirection.UP
+}
+
+func Abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func approachNearestFood(board Board, battlesnake Battlesnake) SnakeDirectionType {
+	println("Looking for food ...")
+	var amountOfFood int = len(board.Food)
+
+	if amountOfFood == 0 {
+		// TODO: Ungefährlicher Move (keine Wand, nicht selber fressen)
+		return SnakeDirection.UP
+	}
+
+	var minFoodDistanceCoord Coord = Coord{1000, 1000}
+
+	for i := 0; i < amountOfFood; i++ {
+		if battlesnake.Head.distanceToOther(minFoodDistanceCoord) > battlesnake.Head.distanceToOther(board.Food[i]) {
+			minFoodDistanceCoord = Coord{
+				board.Food[i].X,
+				board.Food[i].Y,
+			}
+		}
+	}
+
+	if minFoodDistanceCoord.X > battlesnake.Head.X {
+		return SnakeDirection.RIGHT
+	}
+
+	if minFoodDistanceCoord.X < battlesnake.Head.X {
+		return SnakeDirection.LEFT
+	}
+
+	if minFoodDistanceCoord.Y > battlesnake.Head.Y {
+		return SnakeDirection.UP
+	}
+
+	if minFoodDistanceCoord.Y < battlesnake.Head.Y {
+		return SnakeDirection.DOWN
+	}
+
+	return SnakeDirection.UP
 }
 
 // HandleEnd is called when a game your Battlesnake was playing has ended.
