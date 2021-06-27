@@ -22,6 +22,9 @@ func (FoodOnlyWhenHealthLow) ExecuteNextStep(snake Battlesnake, board Board) Act
 type CircleInnerBorder struct{}
 
 func (CircleInnerBorder) ExecuteNextStep(snake Battlesnake, board Board) Action {
+	if snake.Health < int32(board.Height) {
+		return CollectNearestFood{}
+	}
 	if !snake.Head.isAtEdge(snake, board) {
 		return ApproachBorder{}
 	}

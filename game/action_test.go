@@ -98,7 +98,7 @@ func TestApproachBorder(t *testing.T) {
 			Name:        "Expect not to target obstacle above snake",
 			Obstacles:   []Coord{{X: 5, Y: 9}},
 			SnakeCoords: []Coord{{X: 5, Y: 8}, {X: 6, Y: 8}},
-			Expected:    SnakeDirection.RIGHT,
+			Expected:    SnakeDirection.DOWN,
 		},
 		{
 			Name:        "Expect to follow border when in top right corner",
@@ -107,8 +107,13 @@ func TestApproachBorder(t *testing.T) {
 		},
 		{
 			Name:        "Expect to follow border when next to top right corner",
-			SnakeCoords: []Coord{{X: 8, Y: 9}, {X: 9, Y: 9}},
+			SnakeCoords: []Coord{{X: 8, Y: 9}, {X: 9, Y: 9}, {X: 9, Y: 8}},
 			Expected:    SnakeDirection.LEFT,
+		},
+		{
+			Name:        "Expect to choose safe move when shortest path to border is blocked",
+			SnakeCoords: []Coord{{X: 1, Y: 1}, {X: 0, Y: 1}, {X: 0, Y: 0}, {X: 1, Y: 0}, {X: 2, Y: 0}, {X: 2, Y: 1}},
+			Expected:    SnakeDirection.UP,
 		},
 	}
 
@@ -158,7 +163,7 @@ func TestApproachBorder(t *testing.T) {
 			)
 
 			if move != tt.Expected {
-				t.Errorf("Snake does not move in direcion of border (%s), %s instead", tt.Expected, move)
+				t.Errorf("Snake does not move in direction of border (%s), %s instead", tt.Expected, move)
 				return
 			}
 		})

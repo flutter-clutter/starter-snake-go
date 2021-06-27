@@ -56,7 +56,7 @@ func getNextMoveAlongBorder(battlesnake Battlesnake, board Board) SnakeDirection
 	}
 
 	println("No safe border move found")
-	return SnakeDirection.UP
+	return getSafeMove(battlesnake, board)
 }
 
 type MakeSafeMove struct{}
@@ -74,7 +74,7 @@ func (MakeSafeBorderMove) Execute(snake Battlesnake, board Board) SnakeDirection
 type FollowBorder struct{}
 
 func (FollowBorder) Execute(snake Battlesnake, board Board) SnakeDirectionType {
-	return getSafeMove(snake, board)
+	return getNextMoveAlongBorder(snake, board)
 }
 
 type ApproachBorder struct{}
@@ -86,7 +86,12 @@ func (ApproachBorder) Execute(snake Battlesnake, board Board) SnakeDirectionType
 	sort.Sort(ByDistance(byDistance))
 	sortedBorderPieces := byDistance.Coords
 
-	return moveTowardsNearestCoord(snake.Head, sortedBorderPieces)
+	move := moveTowardsNearestCoord(snake.Head, sortedBorderPieces)
+
+	if snake.Head.newCoordFromMove(move).isSafe(snake, board) {
+		return move
+	}
+	return getSafeMove(snake, board)
 }
 
 func createListOfSafeBorderPieces(snake Battlesnake, board Board) []Coord {
