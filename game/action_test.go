@@ -99,23 +99,8 @@ func TestApproachBorder(t *testing.T) {
 		{
 			Name:        "Expect not to target obstacle above snake",
 			Obstacles:   []Coord{{X: 5, Y: 9}},
-			SnakeCoords: []Coord{{X: 5, Y: 8}, {X: 6, Y: 8}},
+			SnakeCoords: []Coord{{X: 5, Y: 8}, {X: 4, Y: 8}},
 			Expected:    SnakeDirection.RIGHT,
-		},
-		{
-			Name:        "Expect to follow border when in top right corner",
-			SnakeCoords: []Coord{{X: 9, Y: 9}, {X: 9, Y: 8}},
-			Expected:    SnakeDirection.LEFT,
-		},
-		{
-			Name:        "Expect to follow border when next to top right corner",
-			SnakeCoords: []Coord{{X: 8, Y: 9}, {X: 9, Y: 9}, {X: 9, Y: 8}},
-			Expected:    SnakeDirection.LEFT,
-		},
-		{
-			Name:        "Expect to choose safe move when shortest path to border is blocked",
-			SnakeCoords: []Coord{{X: 1, Y: 1}, {X: 0, Y: 1}, {X: 0, Y: 0}, {X: 1, Y: 0}, {X: 2, Y: 0}, {X: 2, Y: 1}},
-			Expected:    SnakeDirection.UP,
 		},
 	}
 
@@ -166,6 +151,98 @@ func TestApproachBorder(t *testing.T) {
 
 			if move != tt.Expected {
 				t.Errorf("Snake does not move in direction of border (%s), %s instead", tt.Expected, move)
+				return
+			}
+		})
+	}
+}
+
+func TestFollowBorder(t *testing.T) {
+	tests := []struct {
+		Name        string
+		Obstacles   []Coord
+		SnakeCoords []Coord
+		Expected    SnakeDirectionType
+	}{
+		{
+			Name:        "Expect to follow border when in top right corner (upwards)",
+			SnakeCoords: []Coord{{X: 9, Y: 9}, {X: 9, Y: 8}},
+			Expected:    SnakeDirection.LEFT,
+		},
+		{
+			Name:        "Expect to follow border when in top right corner (upwards)",
+			SnakeCoords: []Coord{{X: 9, Y: 9}, {X: 8, Y: 9}},
+			Expected:    SnakeDirection.DOWN,
+		},
+		{
+			Name:        "Expect to follow border when next to top right corner",
+			SnakeCoords: []Coord{{X: 8, Y: 9}, {X: 7, Y: 9}, {X: 9, Y: 8}},
+			Expected:    SnakeDirection.RIGHT,
+		},
+		{
+			Name:        "Expect to change direction when in border anti-clockwise",
+			SnakeCoords: []Coord{{X: 8, Y: 9}, {X: 9, Y: 9}, {X: 9, Y: 8}},
+			Expected:    SnakeDirection.DOWN,
+		},
+		{
+			Name:        "Expect to go down when in right border",
+			SnakeCoords: []Coord{{X: 9, Y: 8}, {X: 8, Y: 8}, {X: 8, Y: 9}},
+			Expected:    SnakeDirection.DOWN,
+		},
+		{
+			Name:        "Expect to choose safe move when shortest path to border is blocked",
+			SnakeCoords: []Coord{{X: 1, Y: 1}, {X: 0, Y: 1}, {X: 0, Y: 0}, {X: 1, Y: 0}, {X: 2, Y: 0}, {X: 2, Y: 1}},
+			Expected:    SnakeDirection.UP,
+		},
+	}
+
+	action := FollowBorder{}
+
+	for _, tt := range tests {
+		t.Run(tt.Name, func(t *testing.T) {
+			var snake Battlesnake = Battlesnake{
+				ID:     "1",
+				Name:   "Battlesnake",
+				Health: int32(100),
+				Body:   tt.SnakeCoords[1:],
+				Head:   tt.SnakeCoords[0],
+				Length: int32(len(tt.SnakeCoords)),
+				Shout:  "",
+			}
+
+			var battlesnakes []Battlesnake = []Battlesnake{snake}
+
+			if len(tt.Obstacles) > 0 {
+				var enemyBody []Coord
+				if len(tt.Obstacles) > 1 {
+					enemyBody = tt.Obstacles[1:]
+				}
+
+				var enemy = Battlesnake{
+					ID:     "2",
+					Name:   "Battlesnake 2",
+					Health: int32(100),
+					Body:   enemyBody,
+					Head:   tt.Obstacles[0],
+					Length: int32(len(tt.Obstacles)),
+					Shout:  "",
+				}
+
+				battlesnakes = append(battlesnakes, enemy)
+			}
+
+			move := action.Execute(
+				snake,
+				Board{
+					Height: 10,
+					Width:  10,
+					Food:   []Coord{},
+					Snakes: battlesnakes,
+				},
+			)
+
+			if move != tt.Expected {
+				t.Errorf("Snake does not follow border (which is %s), but moves %s instead", tt.Expected, move)
 				return
 			}
 		})

@@ -48,27 +48,34 @@ func getSafeMove(battlesnake Battlesnake, board Board) SnakeDirectionType {
 }
 
 func getNextMoveAlongBorder(battlesnake Battlesnake, board Board) SnakeDirectionType {
-	/*for _, v := range possibleMoves {
-		newCoord := battlesnake.Head.newCoordFromMove(v)
-		if newCoord.isSafe(battlesnake, board) && newCoord.isAtEdge(battlesnake, board) {
-			return v
-		}
-	}*/
-
 	if battlesnake.Head.X == 0 {
-		return SnakeDirection.DOWN
+		newCoord := battlesnake.Head.newCoordFromMove(SnakeDirection.UP)
+		if newCoord.isSafe(battlesnake, board) && newCoord.isAtEdge(battlesnake, board) {
+			return SnakeDirection.UP
+		}
 	}
 
 	if battlesnake.Head.X == board.Width-1 {
-		return SnakeDirection.UP
+		newCoord := battlesnake.Head.newCoordFromMove(SnakeDirection.DOWN)
+		if newCoord.isSafe(battlesnake, board) && newCoord.isAtEdge(battlesnake, board) {
+			return SnakeDirection.DOWN
+		}
 	}
 
 	if battlesnake.Head.Y == 0 {
-		return SnakeDirection.LEFT
+		newCoord := battlesnake.Head.newCoordFromMove(SnakeDirection.LEFT)
+		if newCoord.isSafe(battlesnake, board) && newCoord.isAtEdge(battlesnake, board) {
+			return SnakeDirection.LEFT
+		}
 	}
 
 	if battlesnake.Head.Y == board.Height-1 {
-		return SnakeDirection.RIGHT
+		newCoord := battlesnake.Head.newCoordFromMove(SnakeDirection.RIGHT)
+		a := newCoord.isSafe(battlesnake, board)
+		b := newCoord.isAtEdge(battlesnake, board)
+		if a && b {
+			return SnakeDirection.RIGHT
+		}
 	}
 
 	println("No safe border move found")

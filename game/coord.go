@@ -48,10 +48,6 @@ func (currentCoord Coord) isInSnake(battlesnake Battlesnake) bool {
 		return true
 	}
 
-	if currentCoord.isInSnakeTail(battlesnake) {
-		return false
-	}
-
 	for _, bodyCoord := range battlesnake.Body /*[:len(battlesnake.Body)-1]*/ {
 		if currentCoord.equals(bodyCoord) {
 			return true
@@ -79,6 +75,9 @@ func (currentCoord Coord) isInSnakeTail(battlesnake Battlesnake) bool {
 }
 
 func (currentCoord Coord) isSafe(battlesnake Battlesnake, board Board) bool {
+	if currentCoord.isInSnakeTail(battlesnake) && battlesnake.Health < 100 {
+		return true
+	}
 	return !currentCoord.isOutsideOfArea(board) && !currentCoord.isInSnakes(board)
 }
 
