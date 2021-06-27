@@ -100,6 +100,16 @@ func TestApproachBorder(t *testing.T) {
 			SnakeCoords: []Coord{{X: 5, Y: 8}, {X: 6, Y: 8}},
 			Expected:    SnakeDirection.RIGHT,
 		},
+		{
+			Name:        "Expect to follow border when in top right corner",
+			SnakeCoords: []Coord{{X: 9, Y: 9}, {X: 9, Y: 8}},
+			Expected:    SnakeDirection.LEFT,
+		},
+		{
+			Name:        "Expect to follow border when next to top right corner",
+			SnakeCoords: []Coord{{X: 8, Y: 9}, {X: 9, Y: 9}},
+			Expected:    SnakeDirection.LEFT,
+		},
 	}
 
 	action := ApproachBorder{}

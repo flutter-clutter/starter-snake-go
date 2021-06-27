@@ -2,7 +2,7 @@ package game
 
 import "sort"
 
-var possibleMoves []SnakeDirectionType = []SnakeDirectionType{SnakeDirection.UP, SnakeDirection.DOWN, SnakeDirection.LEFT, SnakeDirection.RIGHT}
+var possibleMoves []SnakeDirectionType = []SnakeDirectionType{SnakeDirection.UP, SnakeDirection.RIGHT, SnakeDirection.DOWN, SnakeDirection.LEFT}
 
 type Action interface {
 	Execute(Battlesnake, Board) SnakeDirectionType
@@ -37,7 +37,8 @@ func approachNearestFood(battlesnake Battlesnake, board Board) SnakeDirectionTyp
 
 func getSafeMove(battlesnake Battlesnake, board Board) SnakeDirectionType {
 	for _, v := range possibleMoves {
-		if battlesnake.Head.newCoordFromMove(v).isSafe(battlesnake, board) {
+		newCoord := battlesnake.Head.newCoordFromMove(v)
+		if newCoord.isSafe(battlesnake, board) {
 			return v
 		}
 	}
@@ -46,10 +47,28 @@ func getSafeMove(battlesnake Battlesnake, board Board) SnakeDirectionType {
 	return SnakeDirection.UP
 }
 
+func getNextMoveAlongBorder(battlesnake Battlesnake, board Board) SnakeDirectionType {
+	for _, v := range possibleMoves {
+		newCoord := battlesnake.Head.newCoordFromMove(v)
+		if newCoord.isSafe(battlesnake, board) && newCoord.isAtEdge(battlesnake, board) {
+			return v
+		}
+	}
+
+	println("No safe border move found")
+	return SnakeDirection.UP
+}
+
 type MakeSafeMove struct{}
 
 func (MakeSafeMove) Execute(snake Battlesnake, board Board) SnakeDirectionType {
 	return getSafeMove(snake, board)
+}
+
+type MakeSafeBorderMove struct{}
+
+func (MakeSafeBorderMove) Execute(snake Battlesnake, board Board) SnakeDirectionType {
+	return getNextMoveAlongBorder(snake, board)
 }
 
 type FollowBorder struct{}
