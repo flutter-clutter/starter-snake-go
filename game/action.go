@@ -48,11 +48,27 @@ func getSafeMove(battlesnake Battlesnake, board Board) SnakeDirectionType {
 }
 
 func getNextMoveAlongBorder(battlesnake Battlesnake, board Board) SnakeDirectionType {
-	for _, v := range possibleMoves {
+	/*for _, v := range possibleMoves {
 		newCoord := battlesnake.Head.newCoordFromMove(v)
 		if newCoord.isSafe(battlesnake, board) && newCoord.isAtEdge(battlesnake, board) {
 			return v
 		}
+	}*/
+
+	if battlesnake.Head.X == 0 {
+		return SnakeDirection.DOWN
+	}
+
+	if battlesnake.Head.X == board.Width-1 {
+		return SnakeDirection.UP
+	}
+
+	if battlesnake.Head.Y == 0 {
+		return SnakeDirection.LEFT
+	}
+
+	if battlesnake.Head.Y == board.Height-1 {
+		return SnakeDirection.RIGHT
 	}
 
 	println("No safe border move found")

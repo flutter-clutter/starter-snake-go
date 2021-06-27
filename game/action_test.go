@@ -1,6 +1,8 @@
 package game
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCollectNearestFoodActionWithFoodInRange(t *testing.T) {
 	tests := []struct {
@@ -98,7 +100,7 @@ func TestApproachBorder(t *testing.T) {
 			Name:        "Expect not to target obstacle above snake",
 			Obstacles:   []Coord{{X: 5, Y: 9}},
 			SnakeCoords: []Coord{{X: 5, Y: 8}, {X: 6, Y: 8}},
-			Expected:    SnakeDirection.DOWN,
+			Expected:    SnakeDirection.RIGHT,
 		},
 		{
 			Name:        "Expect to follow border when in top right corner",

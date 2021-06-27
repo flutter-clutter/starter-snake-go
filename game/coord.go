@@ -47,8 +47,30 @@ func (currentCoord Coord) isInSnake(battlesnake Battlesnake) bool {
 	if currentCoord.equals(battlesnake.Head) {
 		return true
 	}
+
+	if currentCoord.isInSnakeTail(battlesnake) {
+		return false
+	}
+
 	for _, bodyCoord := range battlesnake.Body /*[:len(battlesnake.Body)-1]*/ {
 		if currentCoord.equals(bodyCoord) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (currentCoord Coord) isInSnakeTail(battlesnake Battlesnake) bool {
+	bodyLength := len(battlesnake.Body)
+	tailIndex := 0
+
+	if bodyLength > 0 {
+		if bodyLength > 1 {
+			tailIndex = bodyLength - 1
+		}
+
+		if currentCoord.equals(battlesnake.Body[tailIndex]) {
 			return true
 		}
 	}
