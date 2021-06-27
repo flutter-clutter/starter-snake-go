@@ -66,3 +66,26 @@ func abs(x int) int {
 	}
 	return x
 }
+
+func (currentCoord Coord) isAtEdge(battlesnake Battlesnake, board Board) bool {
+	if currentCoord.X == 0 || currentCoord.X == board.Width-1 {
+		return true
+	}
+
+	if currentCoord.Y == 0 || currentCoord.Y == board.Height-1 {
+		return true
+	}
+
+	return false
+}
+
+type ByDistance struct {
+	SnakePosition Coord
+	Coords        []Coord
+}
+
+func (a ByDistance) Len() int      { return len(a.Coords) }
+func (a ByDistance) Swap(i, j int) { a.Coords[i], a.Coords[j] = a.Coords[j], a.Coords[i] }
+func (a ByDistance) Less(i, j int) bool {
+	return a.Coords[i].distanceToOther(a.SnakePosition) < a.Coords[j].distanceToOther(a.SnakePosition)
+}

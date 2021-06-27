@@ -76,7 +76,7 @@ func HandleStart(w http.ResponseWriter, r *http.Request) {
 	snake = &game.StrategicBattlesnake{
 		Snake:    request.You,
 		Action:   game.CollectNearestFood{},
-		Strategy: game.NearestFoodStrategy{},
+		Strategy: game.CircleInnerBorder{},
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -94,7 +94,6 @@ func HandleMove(w http.ResponseWriter, r *http.Request) {
 	}
 
 	snake.Snake = request.You
-	snake.Strategy = game.NearestFoodStrategy{}
 	snake.Action = snake.Strategy.ExecuteNextStep(snake.Snake, request.Board)
 
 	response := MoveResponse{
